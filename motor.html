@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="sq" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vizion Search</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            darkBg: '#0b0f17',
+            darkCard: '#151c28',
+            darkBorder: '#232d3f'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+    .vizion-logo {
+      background: linear-gradient(135deg, #60a5fa 0%, #a855f7 50%, #ec4899 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 4px 15px rgba(168, 85, 247, 0.4));
+    }
+
+    .vizion-logo-small {
+      background: linear-gradient(135deg, #60a5fa 0%, #a855f7 50%, #ec4899 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .bg-glow {
+      position: absolute;
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, rgba(168, 85, 247, 0.12) 0%, rgba(59, 130, 246, 0.06) 40%, rgba(0,0,0,0) 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    @keyframes rgbGlowBorder {
+      0% { filter: hue-rotate(0deg); box-shadow: 0 0 25px rgba(96, 165, 250, 0.5), 0 0 50px rgba(168, 85, 247, 0.3); }
+      50% { filter: hue-rotate(180deg); box-shadow: 0 0 35px rgba(236, 72, 153, 0.6), 0 0 60px rgba(59, 130, 246, 0.4); }
+      100% { filter: hue-rotate(360deg); box-shadow: 0 0 25px rgba(96, 165, 250, 0.5), 0 0 50px rgba(168, 85, 247, 0.3); }
+    }
+
+    .rgb-photo-container {
+      animation: rgbGlowBorder 6s infinite linear;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #2b3649; border-radius: 4px; }
+
+    @keyframes pulseMic {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+      70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+    .listening {
+      animation: pulseMic 1.5s infinite;
+      color: #ef4444 !important;
+    }
+  </style>
+</head>
+<body class="bg-[#0b0f17] text-gray-100 min-h-screen flex flex-col justify-between relative overflow-x-hidden custom-scrollbar">
+
+  <!-- Glow Background Effect -->
+  <div class="bg-glow"></div>
+
+  <!-- HEADER -->
+  <header class="w-full px-6 py-4 flex items-center justify-between border-b border-darkBorder/60 bg-[#0b0f17]/80 backdrop-blur-md sticky top-0 z-40">
+    <div class="flex items-center gap-6 w-full max-w-4xl">
+      <a href="#" onclick="goHome()" class="text-2xl font-extrabold tracking-tight flex items-center gap-1 select-none shrink-0">
+        <span class="vizion-logo-small">Vizion</span>
+      </a>
+    </div>
+
+    <div class="flex items-center gap-3 relative z-10">
+      <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-purple-600 to-blue-500 text-white flex items-center justify-center font-bold text-sm shadow-lg shadow-purple-500/20">
+        V
+      </div>
+    </div>
+  </header>
+
+  <!-- HOME PAGE VIEW -->
+  <main id="homeView" class="flex-1 flex items-center justify-center px-6 py-8 z-10 max-w-7xl mx-auto w-full">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center w-full">
+      
+      <!-- Kolona e Majtë: Titulli, Kutia e Kërkimit, Lidhjet e Shpejta & Prezantimi -->
+      <div class="flex flex-col items-start justify-center">
+        <div class="mb-6">
+          <h1 class="text-6xl md:text-7xl font-black tracking-tight select-none mb-3 vizion-logo">
+            Vizion
+          </h1>
+          <p class="text-xs uppercase tracking-widest text-purple-400/80 font-semibold">MOTOR K&Euml;RKIMI PREMIUM</p>
+        </div>
+
+        <!-- Search Box Container -->
+        <div class="w-full max-w-lg relative">
+          <form onsubmit="handleSearch(event)" class="relative">
+            <div class="relative flex items-center">
+              <svg class="w-5 h-5 absolute left-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              
+              <input 
+                type="text" 
+                id="homeSearchInput"
+                oninput="handleInputSuggestions(this.value)"
+                onfocus="handleInputSuggestions(this.value)"
+                class="w-full py-4 pl-12 pr-14 text-base bg-darkCard/90 text-white rounded-2xl border border-darkBorder hover:border-purple-500/40 focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-500/10 shadow-2xl transition-all"
+                placeholder="K&euml;rko me Vizion ose fol me z&euml;..."
+                autocomplete="off"
+                autofocus
+              />
+
+              <!-- Butoni i Mikrofonit (Kërkimi me Zë) -->
+              <button 
+                type="button" 
+                id="micBtn" 
+                onclick="toggleVoiceSearch()" 
+                title="Kërko me zë"
+                class="absolute right-4 p-2 text-gray-400 hover:text-purple-400 transition-colors rounded-xl focus:outline-none"
+              >
+                <svg id="micIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Menuja me Sugjerime Dinamike -->
+            <div id="suggestionsBox" class="hidden absolute left-0 right-0 top-full mt-2 bg-darkCard border border-darkBorder rounded-2xl shadow-2xl z-50 overflow-hidden backdrop-blur-xl">
+            </div>
+          </form>
+
+          <!-- Butoni i Kërkimit -->
+          <div class="flex justify-start gap-3 mt-4">
+            <button onclick="triggerHomeSearch()" class="px-6 py-3 bg-darkCard hover:bg-darkBorder text-sm font-semibold rounded-xl text-gray-200 transition-all border border-darkBorder shadow-lg hover:shadow-purple-500/10 hover:text-white">
+              K&euml;rko me Vizion
+            </button>
+          </div>
+
+          <!-- LIDHJET E SHPEJTA (Quick Shortcuts) -->
+          <div class="mt-5 flex items-center gap-3 flex-wrap">
+            <a href="https://www.youtube.com" target="_blank" class="flex items-center gap-2 px-3.5 py-2 bg-darkCard/80 hover:bg-darkBorder border border-darkBorder hover:border-red-500/40 rounded-xl text-xs font-semibold text-gray-300 hover:text-white transition-all shadow-md group">
+              <span class="w-2 h-2 rounded-full bg-red-500 group-hover:scale-125 transition-transform"></span> YouTube
+            </a>
+            <a href="https://sq.wikipedia.org" target="_blank" class="flex items-center gap-2 px-3.5 py-2 bg-darkCard/80 hover:bg-darkBorder border border-darkBorder hover:border-blue-500/40 rounded-xl text-xs font-semibold text-gray-300 hover:text-white transition-all shadow-md group">
+              <span class="w-2 h-2 rounded-full bg-blue-400 group-hover:scale-125 transition-transform"></span> Wikipedia
+            </a>
+            <a href="https://mail.google.com" target="_blank" class="flex items-center gap-2 px-3.5 py-2 bg-darkCard/80 hover:bg-darkBorder border border-darkBorder hover:border-amber-500/40 rounded-xl text-xs font-semibold text-gray-300 hover:text-white transition-all shadow-md group">
+              <span class="w-2 h-2 rounded-full bg-amber-400 group-hover:scale-125 transition-transform"></span> Gmail
+            </a>
+            <a href="https://translate.google.com" target="_blank" class="flex items-center gap-2 px-3.5 py-2 bg-darkCard/80 hover:bg-darkBorder border border-darkBorder hover:border-cyan-500/40 rounded-xl text-xs font-semibold text-gray-300 hover:text-white transition-all shadow-md group">
+              <span class="w-2 h-2 rounded-full bg-cyan-400 group-hover:scale-125 transition-transform"></span> P&euml;rkthyesi
+            </a>
+            <a href="https://maps.google.com" target="_blank" class="flex items-center gap-2 px-3.5 py-2 bg-darkCard/80 hover:bg-darkBorder border border-darkBorder hover:border-emerald-500/40 rounded-xl text-xs font-semibold text-gray-300 hover:text-white transition-all shadow-md group">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 group-hover:scale-125 transition-transform"></span> Harta
+            </a>
+          </div>
+
+          <!-- Video-Animacion Dinamik i Integruar -->
+          <div class="mt-6 w-full bg-darkCard/70 border border-darkBorder rounded-2xl p-3 flex items-center gap-4 shadow-xl">
+            <div class="w-36 h-20 rounded-xl overflow-hidden shrink-0 border border-purple-500/30 relative bg-[#090d16]">
+              <canvas id="vizionMiniCanvas" class="w-full h-full block"></canvas>
+              <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <span class="text-[11px] font-extrabold tracking-widest uppercase px-2 py-0.5 rounded bg-black/40 backdrop-blur-sm text-white border border-white/10">VIZION AI</span>
+              </div>
+            </div>
+            <div>
+              <span class="text-[10px] uppercase tracking-wider font-bold text-purple-400">PREZANTIM</span>
+              <h4 class="text-sm font-bold text-white">Zbulo shpejt&euml;sin&euml; e Vizion</h4>
+              <p class="text-xs text-gray-400 mt-0.5 leading-snug">K&euml;rkim inteligjent, i sigurt dhe pa gjurmim.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Kolona e Djathtë: Imazhi RGB + Ora/Data & Moti -->
+      <div class="flex flex-col items-center justify-center w-full max-w-lg mx-auto gap-4">
+        
+        <!-- Imazhi me Efekt RGB Glow Anash -->
+        <div class="relative w-full rounded-3xl overflow-hidden border-2 border-purple-500/50 rgb-photo-container group">
+          <div class="absolute inset-0 bg-gradient-to-t from-darkBg via-transparent to-transparent opacity-60 z-10"></div>
+          
+          <img 
+            src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80" 
+            alt="Vizion Search Workspace" 
+            class="w-full object-cover rounded-3xl transform group-hover:scale-105 transition-transform duration-500"
+          />
+          
+          <div class="absolute bottom-4 left-4 z-20 flex items-center gap-2 bg-darkCard/80 backdrop-blur-md px-4 py-2 rounded-xl border border-darkBorder">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="text-xs font-semibold text-gray-200">Vizion Tech &bull; Made in Albania</span>
+          </div>
+        </div>
+
+        <!-- Rreshti me 2 Kartela: Ora/Data + Moti në Kohë Reale -->
+        <div class="w-full grid grid-cols-1 sm:grid-cols-12 gap-3">
+          
+          <!-- Kartela e Orës & Datës Reale (7 kolona) -->
+          <div class="sm:col-span-7 bg-darkCard/90 border border-darkBorder backdrop-blur-md rounded-2xl p-4 flex items-center justify-between shadow-xl">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="p-2 bg-purple-500/10 border border-purple-500/20 rounded-xl text-purple-400 shrink-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 002-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              </div>
+              <div class="truncate">
+                <div id="liveDate" class="text-xs font-semibold text-gray-200 truncate">---</div>
+                <div class="text-[11px] text-purple-400/80 font-medium">Ora &amp; Data</div>
+              </div>
+            </div>
+            <div id="liveTime" class="text-lg font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 tracking-wider font-mono shrink-0 ml-2">
+              00:00:00
+            </div>
+          </div>
+
+          <!-- Kartela e Motit në Kohë Reale (5 kolona) -->
+          <div class="sm:col-span-5 bg-darkCard/90 border border-darkBorder backdrop-blur-md rounded-2xl p-4 flex items-center justify-between shadow-xl">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div id="weatherIcon" class="p-2 bg-blue-500/10 border border-blue-500/20 rounded-xl text-blue-400 shrink-0 text-lg leading-none flex items-center justify-center w-9 h-9">
+                &#9728;&#65039;
+              </div>
+              <div class="truncate">
+                <div id="weatherCity" class="text-xs font-semibold text-gray-200 truncate">Tiran&euml;</div>
+                <div id="weatherDesc" class="text-[11px] text-blue-400/80 font-medium truncate">Duke ngarkuar...</div>
+              </div>
+            </div>
+            <div id="weatherTemp" class="text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300 font-mono shrink-0 ml-2">
+              --&deg;C
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="w-full py-4 px-6 border-t border-darkBorder/60 bg-[#0b0f17]/80 text-xs text-gray-400 z-10">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div>&copy; 2026 Vizion Engine Inc. T&euml; gjitha t&euml; drejtat t&euml; rezervuara.</div>
+      <div class="flex gap-6">
+        <button onclick="openModal('privacyModal')" class="hover:text-purple-400 transition-colors cursor-pointer">Privat&euml;sia</button>
+        <button onclick="openModal('termsModal')" class="hover:text-purple-400 transition-colors cursor-pointer">Kushtet</button>
+        <button onclick="openModal('aboutModal')" class="hover:text-purple-400 transition-colors cursor-pointer">Rreth Vizion</button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- POP-UP 1: PRIVATËSIA -->
+  <div id="privacyModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-darkCard border border-darkBorder w-full max-w-lg rounded-2xl p-6 shadow-2xl relative">
+      <button onclick="closeModal('privacyModal')" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl font-bold">&times;</button>
+      <h3 class="text-xl font-bold text-white mb-3">Politika e Privat&euml;sis&euml;</h3>
+      <p class="text-sm text-gray-300 leading-relaxed">
+        N&euml; <strong>Vizion Search</strong>, privat&euml;sia juaj &euml;sht&euml; prioriteti yn&euml; kryesor. Ne nuk ruajm&euml; historikun tuaj t&euml; k&euml;rkimit, nuk p&euml;rdorim kuki (cookies) gjurmuese dhe nuk shesim t&euml; dh&euml;na te pal&euml;t e treta. T&euml; gjitha k&euml;rkimet tuaja jan&euml; t&euml; enkriptuara dhe t&euml; mbrojtura.
+      </p>
+      <div class="mt-6 flex justify-end">
+        <button onclick="closeModal('privacyModal')" class="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold rounded-xl transition-all">Mbyll</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- POP-UP 2: KUSHTET -->
+  <div id="termsModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-darkCard border border-darkBorder w-full max-w-lg rounded-2xl p-6 shadow-2xl relative">
+      <button onclick="closeModal('termsModal')" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl font-bold">&times;</button>
+      <h3 class="text-xl font-bold text-white mb-3">Kushtet e P&euml;rdorimit</h3>
+      <p class="text-sm text-gray-300 leading-relaxed">
+        Duke p&euml;rdorur Vizion Search, ju pranoni t&euml; p&euml;rdorni platform&euml;n p&euml;r q&euml;llime t&euml; ligjshme. Vizion &euml;sht&euml; nj&euml; motor k&euml;rkimi i integruar q&euml; siguron sugjerime dinamike dhe d&euml;rgon k&euml;rkimet tuaja n&euml; m&euml;nyr&euml; t&euml; sigurt. Platforma ofrohet "si&ccedil; &euml;sht&euml;" me standardet m&euml; t&euml; larta t&euml; shpejt&euml;sis&euml;.
+      </p>
+      <div class="mt-6 flex justify-end">
+        <button onclick="closeModal('termsModal')" class="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold rounded-xl transition-all">Mbyll</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- POP-UP 3: RRETH VIZION -->
+  <div id="aboutModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-darkCard border border-darkBorder w-full max-w-lg rounded-2xl p-6 shadow-2xl relative">
+      <button onclick="closeModal('aboutModal')" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl font-bold">&times;</button>
+      <h3 class="text-xl font-bold text-white mb-3 flex items-center gap-2">
+        <span class="vizion-logo-small">Vizion</span> Rreth Nesh
+      </h3>
+      <p class="text-sm text-gray-300 leading-relaxed">
+        <strong>Vizion</strong> &euml;sht&euml; nj&euml; motor k&euml;rkimi modern, i projektuar p&euml;r t&euml; ofruar nj&euml; p&euml;rvoj&euml; k&euml;rkimi ultra t&euml; shpejt&euml;, me dizajn elegant me ngjyra gradient dhe sugjerime inteligjente n&euml; koh&euml; reale.
+      </p>
+      <div class="mt-6 flex justify-end">
+        <button onclick="closeModal('aboutModal')" class="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold rounded-xl transition-all">Mbyll</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let debounceTimer;
+
+    // Kërkimi me Zë (Voice Search)
+    function toggleVoiceSearch() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        alert('Shfletuesi juaj nuk e mbështet kërkimin me zë.');
+        return;
+      }
+
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'sq-AL';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      const micBtn = document.getElementById('micBtn');
+      micBtn.classList.add('listening');
+
+      recognition.start();
+
+      recognition.onresult = function(event) {
+        const speechToText = event.results[0][0].transcript;
+        document.getElementById('homeSearchInput').value = speechToText;
+        micBtn.classList.remove('listening');
+        executeSearch(speechToText);
+      };
+
+      recognition.onerror = function() {
+        micBtn.classList.remove('listening');
+      };
+
+      recognition.onend = function() {
+        micBtn.classList.remove('listening');
+      };
+    }
+
+    // Moti në Kohë Reale
+    function fetchWeather(lat, lon, cityName) {
+      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
+        .then(res => res.json())
+        .then(data => {
+          if (!data || !data.current_weather) return;
+          const temp = Math.round(data.current_weather.temperature);
+          const code = data.current_weather.weathercode;
+          
+          document.getElementById('weatherTemp').innerHTML = `${temp}&deg;C`;
+          if (cityName) {
+            document.getElementById('weatherCity').textContent = cityName;
+          }
+
+          let icon = '\u2600\uFE0F';
+          let desc = 'Kthjell\u00ebt';
+
+          if (code === 0) { icon = '\u2600\uFE0F'; desc = 'Kthjell\u00ebt'; }
+          else if (code >= 1 && code <= 3) { icon = '\u26C5'; desc = 'Me re'; }
+          else if (code >= 45 && code <= 48) { icon = '\uD83C\uDF2B\uFE0F'; desc = 'Mjegull'; }
+          else if (code >= 51 && code <= 67) { icon = '\uD83C\uDF27\uFE0F'; desc = 'Shi'; }
+          else if (code >= 71 && code <= 77) { icon = '\u2744\uFE0F'; desc = 'Bor\u00eb'; }
+          else if (code >= 80 && code <= 82) { icon = '\uD83C\uDF26\uFE0F'; desc = 'Rrebesh'; }
+          else if (code >= 95) { icon = '\u26C8\uFE0F'; desc = 'Stuhi'; }
+
+          document.getElementById('weatherIcon').textContent = icon;
+          document.getElementById('weatherDesc').textContent = desc;
+        })
+        .catch(() => {
+          document.getElementById('weatherTemp').innerHTML = '18&deg;C';
+          document.getElementById('weatherDesc').textContent = 'Kthjell\u00ebt';
+        });
+    }
+
+    function initWeather() {
+      fetchWeather(41.3275, 19.8187, 'Tiran&euml;');
+
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const { latitude, longitude } = pos.coords;
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
+              .then(r => r.json())
+              .then(geo => {
+                const city = (geo.address && (geo.address.city || geo.address.town || geo.address.village || geo.address.county)) || 'Lokacioni Yt';
+                fetchWeather(latitude, longitude, city);
+              })
+              .catch(() => fetchWeather(latitude, longitude, 'Lokacioni Yt'));
+          },
+          () => {},
+          { timeout: 5000 }
+        );
+      }
+    }
+    initWeather();
+
+    // Animacion i gjallë për kutinë e prezantimit
+    (function initMiniVideoAnimation() {
+      const canvas = document.getElementById('vizionMiniCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let t = 0;
+
+      function resize() {
+        canvas.width = canvas.offsetWidth * 2;
+        canvas.height = canvas.offsetHeight * 2;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      function draw() {
+        const w = canvas.width;
+        const h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+
+        const bgGrad = ctx.createLinearGradient(0, 0, w, h);
+        bgGrad.addColorStop(0, '#0f172a');
+        bgGrad.addColorStop(0.5, '#1e1b4b');
+        bgGrad.addColorStop(1, '#311042');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, w, h);
+
+        for (let i = 0; i < 3; i++) {
+          ctx.beginPath();
+          ctx.lineWidth = 3;
+          ctx.strokeStyle = i === 0 ? 'rgba(96, 165, 250, 0.7)' : i === 1 ? 'rgba(168, 85, 247, 0.8)' : 'rgba(236, 72, 153, 0.7)';
+          for (let x = 0; x <= w; x += 6) {
+            const y = h / 2 + Math.sin(x * 0.02 + t + i * 1.5) * (18 + i * 6) * Math.cos(t * 0.5);
+            if (x === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+        }
+
+        for (let p = 0; p < 12; p++) {
+          const px = ((p * 47 + t * 35) % w);
+          const py = (h / 2) + Math.sin(t + p) * (h * 0.32);
+          ctx.beginPath();
+          ctx.arc(px, py, 2.5, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+          ctx.fill();
+        }
+
+        t += 0.04;
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+
+    function openModal(id) {
+      document.getElementById(id).classList.remove('hidden');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+
+    window.onclick = function(event) {
+      ['privacyModal', 'termsModal', 'aboutModal'].forEach(id => {
+        const modal = document.getElementById(id);
+        if (event.target === modal) {
+          closeModal(id);
+        }
+      });
+    }
+
+    function updateClock() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      document.getElementById('liveTime').textContent = `${hours}:${minutes}:${seconds}`;
+
+      const days = ['E Diel', 'E H\u00ebn\u00eb', 'E Mart\u00eb', 'E M\u00ebrkur\u00eb', 'E Enjte', 'E Premte', 'E Shtun\u00eb'];
+      const months = ['Janar', 'Shkurt', 'Mars', 'Prill', 'Maj', 'Qershor', 'Korrik', 'Gusht', 'Shtator', 'Tetor', 'N\u00ebntor', 'Dhjetor'];
+      
+      const dayName = days[now.getDay()];
+      const dayNum = now.getDate();
+      const monthName = months[now.getMonth()];
+      const yearNum = now.getFullYear();
+
+      document.getElementById('liveDate').textContent = `${dayName}, ${dayNum} ${monthName} ${yearNum}`;
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    function goHome() {
+      document.getElementById('homeSearchInput').value = '';
+      document.getElementById('suggestionsBox').classList.add('hidden');
+    }
+
+    function handleSearch(e) {
+      if(e) e.preventDefault();
+      const query = document.getElementById('homeSearchInput').value.trim();
+      if (!query) return;
+      executeSearch(query);
+    }
+
+    function triggerHomeSearch() {
+      const val = document.getElementById('homeSearchInput').value.trim();
+      if(val) executeSearch(val);
+    }
+
+    function selectSuggestion(query) {
+      document.getElementById('homeSearchInput').value = query;
+      executeSearch(query);
+    }
+
+    function executeSearch(query) {
+      const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+      window.location.href = googleSearchUrl;
+    }
+
+    function handleInputSuggestions(val) {
+      const box = document.getElementById('suggestionsBox');
+      const query = val.trim();
+
+      if (!query) {
+        box.classList.add('hidden');
+        return;
+      }
+
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        fetch(`https://sq.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(query)}&limit=6&namespace=0&format=json&origin=*`)
+          .then(res => res.json())
+          .then(data => {
+            const results = data[1] || [];
+            let suggestions = results;
+
+            if (suggestions.length === 0) {
+              suggestions = [
+                query,
+                query + ' shqip',
+                query + ' news',
+                query + ' 2026'
+              ];
+            }
+
+            box.innerHTML = suggestions.map(item => `
+              <div onclick="selectSuggestion('${escapeQuotes(item)}')" class="px-5 py-3 hover:bg-darkBorder/60 cursor-pointer text-sm text-gray-200 flex items-center gap-3 border-b last:border-0 border-darkBorder/40 transition-colors">
+                <svg class="w-4 h-4 text-purple-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <span class="font-medium truncate">${item}</span>
+              </div>
+            `).join('');
+
+            box.classList.remove('hidden');
+          })
+          .catch(() => {
+            box.classList.add('hidden');
+          });
+      }, 150);
+    }
+
+    document.addEventListener('click', function(e) {
+      const searchBox = document.getElementById('homeSearchInput');
+      const suggestionsBox = document.getElementById('suggestionsBox');
+      if (searchBox && suggestionsBox && !searchBox.contains(e.target) && !suggestionsBox.contains(e.target)) {
+        suggestionsBox.classList.add('hidden');
+      }
+    });
+
+    function escapeQuotes(str) {
+      return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
+  </script>
+</body>
+</html>
